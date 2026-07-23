@@ -63,7 +63,18 @@ export function VisionUI({ toolId, title, description }: VisionUIProps) {
       const result = await puter.ai.chat(chatPrompt, imageFile);
       
       if (result && result.message && result.message.content) {
-        setChatResult(result.message.content);
+        const content = result.message.content;
+        if (typeof content === 'string') {
+          setChatResult(content);
+        } else if (Array.isArray(content)) {
+          // Extract text parts from content array
+          const text = content
+            .map((part: any) => (typeof part === 'string' ? part : part.text ?? ''))
+            .join('');
+          setChatResult(text || 'No text response received.');
+        } else {
+          setChatResult(String(content));
+        }
       } else if (typeof result === 'string') {
         setChatResult(result);
       } else {
